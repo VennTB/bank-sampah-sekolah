@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Bank Sampah Sekolah{% endblock %}
+{% block content %}
+
+{% set milestone = 500 %}
+{% set pohon = (ringkasan.total_poin // milestone) %}
+{% set sisa_poin = ringkasan.total_poin % milestone %}
+{% set progress_percent = (sisa_poin / milestone * 100) if milestone else 0 %}
+{% set kurang_poin = milestone - sisa_poin %}
+
+<!-- ========== HERO ========== -->
+<section class="eco-hero" aria-labelledby="dashboard-title">
+  <div class="eco-float-icons" aria-hidden="true"></div>
+
+  <div class="eco-hero-top">
+    <div class="eco-hero-text">
+      <p class="page-eyebrow">Halaman Utama</p>
+      <h1 id="dashboard-title" class="page-title">
+        Selamat datang di Bank Sampah Sekolah 👋
+      </h1>
+      <p class="page-desc">
+        Kelola setoran sampah siswa, poin, dan penukaran hadiah — semua dari browser, tanpa terminal.
+      </p>
+    </div>
+
+    <div class="eco-mascot-wrap">
+      <div class="eco-bubble" role="status" aria-live="polite" aria-atomic="true"></div>
+      <button
+        type="button"
+        class="eco-mascot-btn"
+        aria-label="Klik maskot untuk fakta seru tentang daur ulang"
+        title="Klik aku untuk fakta menarik!"
+      >
+        🗑️♻️
+      </button>
+      <p class="eco-mascot-hint">Klik aku!</p>
+    </div>
+  </div>
+</section>
+
+<!-- ========== STATISTIK ========== -->
+<section class="stat-row" aria-label="Ringkasan statistik">
+  <article class="stat-card eco-in">
+    <div class="stat-icon" aria-hidden="true">👥</div>
+    <div class="stat-label">Siswa Terdaftar</div>
+    <div class="stat-value">
+      <span
+        class="eco-counter"
+        data-target="{{ ringkasan.jumlah_siswa }}"
+        data-decimals="0"
+        data-duration="1100"
+      >0</span>
+      <span class="unit">siswa</span>
+    </div>
+  </article>
+
+  <article class="stat-card eco-in">
+    <div class="stat-icon" aria-hidden="true">⚖️</div>
+    <div class="stat-label">Sampah Terkumpul</div>
+    <div class="stat-value">
+      <span
+        class="eco-counter"
+        data-target="{{ ringkasan.total_berat }}"
+        data-decimals="2"
+        data-duration="1300"
+      >0</span>
+      <span class="unit">kg</span>
+    </div>
+  </article>
+
+  <article class="stat-card eco-in">
+    <div class="stat-icon" aria-hidden="true">⭐</div>
+    <div class="stat-label">Poin Beredar</div>
+    <div class="stat-value">
+      <span
+        class="eco-counter"
+        data-target="{{ ringkasan.total_poin }}"
+        data-decimals="0"
+        data-duration="1400"
+      >0</span>
+      <span class="unit">poin</span>
+    </div>
+  </article>
+</section>
+
+<!-- ========== PROGRES POHON VIRTUAL ========== -->
+<section class="card eco-progress-card" aria-labelledby="progress-title">
+  <div class="eco-progress-head">
+    <h2 id="progress-title" class="eco-progress-title">
+      🌳 Progres Pohon Virtual Sekolah
+    </h2>
+    <div class="eco-progress-count">
+      <strong>{{ pohon }}</strong> pohon tertanam
+    </div>
+  </div>
+
+  <div class="eco-tree-row">
+    <div class="eco-tree-emoji" aria-hidden="true">🌳</div>
+    <div
+      class="eco-progress-track"
+      role="progressbar"
+      aria-valuenow="{{ progress_percent | round(0) }}"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-label="Progres menuju pohon berikutnya"
+    >
+      <div
+        class="eco-progress-fill"
+        data-target-percent="{{ '%.1f'|format(progress_percent) }}"
+      ></div>
+    </div>
+  </div>
+
+  <p class="eco-progress-note">
+    {% if kurang_poin > 0 %}
+      Kumpulkan <strong>{{ kurang_poin }} poin</strong> lagi dari seluruh siswa
+      untuk menumbuhkan pohon virtual berikutnya!
+      Setiap <strong>{{ milestone }} poin</strong> = 1 pohon. 🌱
+    {% else %}
+      Selamat! Target pohon berikutnya sudah tercapai. 🎉
+      Terus kumpulkan poin untuk pohon berikutnya.
+    {% endif %}
+  </p>
+</section>
+
+<!-- ========== MENU UTAMA ========== -->
+<nav class="menu-grid" aria-label="Menu utama Bank Sampah">
+  <a class="menu-card eco-in" href="{{ url_for('daftar_siswa_baru') }}">
+    <div class="menu-icon" aria-hidden="true">📝</div>
+    <div class="menu-num">01</div>
+    <div class="menu-title">Daftar Siswa Baru</div>
+    <div class="menu-desc">Tambahkan siswa baru ke buku tabungan sampah.</div>
+    <span class="menu-arrow" aria-hidden="true">→</span>
+  </a>
+
+  <a class="menu-card eco-in" href="{{ url_for('setor_sampah') }}">
+    <div class="menu-icon" aria-hidden="true">♻️</div>
+    <div class="menu-num">02</div>
+    <div class="menu-title">Setor Sampah</div>
+    <div class="menu-desc">Catat setoran & dapatkan poin sesuai berat & jenis sampah.</div>
+    <span class="menu-arrow" aria-hidden="true">→</span>
+  </a>
+
+  <a class="menu-card eco-in" href="{{ url_for('lihat_poin_siswa') }}">
+    <div class="menu-icon" aria-hidden="true">⭐</div>
+    <div class="menu-num">03</div>
+    <div class="menu-title">Lihat Poin Siswa</div>
+    <div class="menu-desc">Cek total poin yang dimiliki setiap siswa.</div>
+    <span class="menu-arrow" aria-hidden="true">→</span>
+  </a>
+
+  <a class="menu-card eco-in" href="{{ url_for('riwayat_setoran') }}">
+    <div class="menu-icon" aria-hidden="true">📜</div>
+    <div class="menu-num">04</div>
+    <div class="menu-title">Riwayat Setoran</div>
+    <div class="menu-desc">Lihat seluruh histori setoran sampah.</div>
+    <span class="menu-arrow" aria-hidden="true">→</span>
+  </a>
+
+  <a class="menu-card eco-in" href="{{ url_for('lihat_hadiah') }}">
+    <div class="menu-icon" aria-hidden="true">🎁</div>
+    <div class="menu-num">05</div>
+    <div class="menu-title">Daftar Hadiah</div>
+    <div class="menu-desc">Lihat hadiah yang tersedia untuk ditukar.</div>
+    <span class="menu-arrow" aria-hidden="true">→</span>
+  </a>
+
+  <a class="menu-card eco-in" href="{{ url_for('tukar_hadiah') }}">
+    <div class="menu-icon" aria-hidden="true">🔄</div>
+    <div class="menu-num">06</div>
+    <div class="menu-title">Tukar Poin dengan Hadiah</div>
+    <div class="menu-desc">Tukarkan poin siswa dengan hadiah pilihan.</div>
+    <span class="menu-arrow" aria-hidden="true">→</span>
+  </a>
+
+  <a class="menu-card eco-in" href="{{ url_for('laporan_total') }}">
+    <div class="menu-icon" aria-hidden="true">📊</div>
+    <div class="menu-num">07</div>
+    <div class="menu-title">Laporan Rekap</div>
+    <div class="menu-desc">Ringkasan total, rincian jenis sampah & peringkat siswa.</div>
+    <span class="menu-arrow" aria-hidden="true">→</span>
+  </a>
+
+  <a class="menu-card eco-in" href="{{ url_for('hapus_siswa') }}">
+    <div class="menu-icon" aria-hidden="true">🗑️</div>
+    <div class="menu-num">08</div>
+    <div class="menu-title">Hapus Data Siswa</div>
+    <div class="menu-desc">Hapus data siswa beserta riwayatnya.</div>
+    <span class="menu-arrow" aria-hidden="true">→</span>
+  </a>
+</nav>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+{% endblock %}

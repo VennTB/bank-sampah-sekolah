@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Hapus Data Siswa{% endblock %}
+{% block content %}
+<div class="page-eyebrow">Menu 08</div>
+<h1 class="page-title">Hapus Data Siswa</h1>
+<p class="page-desc">Pilih satu atau beberapa siswa yang datanya ingin dihapus. Riwayat setoran & penukaran mereka akan ikut terhapus.</p>
+
+<div class="card">
+  <form method="GET" action="{{ url_for('hapus_siswa') }}" class="search-row">
+    <div class="field">
+      <label for="q">Cari ID atau Nama Siswa</label>
+      <input type="text" id="q" name="q" value="{{ kata_kunci }}" placeholder="Kosongkan untuk lihat semua siswa">
+    </div>
+    <button type="submit" class="btn ghost">Cari</button>
+  </form>
+</div>
+
+{% if not hasil %}
+  <div class="empty-state">
+    <div class="empty-title">Tidak ada siswa ditemukan</div>
+  </div>
+{% else %}
+  <div class="card">
+    <form method="POST" action="{{ url_for('hapus_siswa_proses') }}" id="hapus-form">
+      {% for s in hasil %}
+        <label class="check-row">
+          <input type="checkbox" name="siswa_id" value="{{ s['id'] }}">
+          <span class="cr-name">{{ s['nama'] }}</span>
+          <span class="cr-meta">ID #{{ s['id'] }} &nbsp;•&nbsp; {{ s['kelas'] }} &nbsp;•&nbsp; {{ s['total_poin'] }} poin</span>
+        </label>
+      {% endfor %}
+      <div class="actions-row" style="margin-top:18px;">
+        <button type="submit" class="btn danger" onclick="return confirm('Yakin ingin menghapus siswa terpilih beserta seluruh riwayatnya? Tindakan ini tidak bisa dibatalkan.');">
+          Hapus Siswa Terpilih
+        </button>
+      </div>
+    </form>
+  </div>
+{% endif %}
+{% endblock %}

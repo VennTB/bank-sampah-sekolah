@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Daftar Hadiah{% endblock %}
+{% block content %}
+<div class="page-eyebrow">Menu 05</div>
+<h1 class="page-title">Daftar Hadiah</h1>
+<p class="page-desc">Hadiah yang bisa ditukar siswa dengan poin tabungan sampah mereka.</p>
+
+{% if not data %}
+  <div class="empty-state">
+    <div class="empty-title">Belum ada hadiah tersedia</div>
+  </div>
+{% else %}
+<div class="menu-grid">
+  {% for h in data %}
+  <div class="card" style="margin-bottom:0;">
+    <div class="menu-num">#{{ h['id'] }}</div>
+    <div class="menu-title">{{ h['nama_hadiah'] }}</div>
+    <div class="actions-row" style="margin-top:10px; align-items:center;">
+      <span class="badge">{{ h['poin_dibutuhkan'] }} poin</span>
+      {% if h['stok'] > 0 %}
+        <span class="badge">Stok: {{ h['stok'] }}</span>
+      {% else %}
+        <span class="badge warn">Stok Habis</span>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+<div class="actions-row" style="margin-top:24px;">
+  <a href="{{ url_for('tukar_hadiah') }}" class="btn amber">Tukar Poin Sekarang</a>
+</div>
+{% endif %}
+{% endblock %}

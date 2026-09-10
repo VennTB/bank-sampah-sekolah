@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Daftar Siswa Baru{% endblock %}
+{% block content %}
+<div class="page-eyebrow">Menu 01</div>
+<h1 class="page-title">Daftar Siswa Baru</h1>
+<p class="page-desc">Tambahkan siswa baru agar bisa mulai menabung sampah dan mengumpulkan poin.</p>
+
+<div class="card" style="max-width:460px;">
+  <form method="POST" action="{{ url_for('daftar_siswa_baru') }}">
+    <div class="field">
+      <label for="nama">Nama Siswa</label>
+      <input type="text" id="nama" name="nama" placeholder="cth. Sapto Ganteng" required>
+    </div>
+    <div class="field">
+      <label for="kelas">Kelas</label>
+      <input type="text" id="kelas" name="kelas" placeholder="cth. 12RPL" required>
+    </div>
+    <button type="submit" class="btn">Daftarkan Siswa</button>
+  </form>
+</div>
+{% endblock %}

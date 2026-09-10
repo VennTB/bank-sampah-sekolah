@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Laporan Rekap{% endblock %}
+{% block content %}
+<div class="page-eyebrow">Menu 07</div>
+<h1 class="page-title">Laporan Rekap Bank Sampah</h1>
+<p class="page-desc">Ringkasan keseluruhan program bank sampah sekolah.</p>
+
+<div class="stat-row">
+  <div class="stat-card">
+    <div class="stat-label">Siswa Terdaftar</div>
+    <div class="stat-value">{{ jumlah_siswa }}<span class="unit">siswa</span></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Sampah Terkumpul</div>
+    <div class="stat-value">{{ "%.2f"|format(total_berat) }}<span class="unit">kg</span></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Poin Beredar</div>
+    <div class="stat-value">{{ total_poin_terkumpul }}<span class="unit">poin</span></div>
+  </div>
+</div>
+
+<div class="card">
+  <p class="page-eyebrow" style="margin-top:0;">Rincian per Jenis Sampah</p>
+  {% if not per_jenis %}
+    <p class="small-muted">Belum ada data setoran.</p>
+  {% else %}
+    {% for jenis, berat in per_jenis %}
+      <div class="bar-row">
+        <div class="bar-label">{{ jenis }}</div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width: {{ (berat / max_berat * 100) if max_berat else 0 }}%;"></div>
+        </div>
+        <div class="bar-val">{{ "%.2f"|format(berat) }} kg</div>
+      </div>
+    {% endfor %}
+  {% endif %}
+</div>
+
+<div class="card">
+  <p class="page-eyebrow" style="margin-top:0;">Top 3 Siswa Poin Terbanyak</p>
+  {% if not top3 %}
+    <p class="small-muted">Belum ada data siswa.</p>
+  {% else %}
+    <ul class="rank-list">
+      {% for nama, poin in top3 %}
+        <li>
+          <div class="rank-medal">{{ loop.index }}</div>
+          <div class="rank-name">{{ nama }}</div>
+          <div class="rank-points">{{ poin }} poin</div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Lihat Poin Siswa{% endblock %}
+{% block content %}
+<div class="page-eyebrow">Menu 03</div>
+<h1 class="page-title">Lihat Poin Siswa</h1>
+<p class="page-desc">Cari nama atau ID untuk melihat poin siswa tertentu, atau lihat semua siswa di bawah.</p>
+
+<div class="card">
+  <form method="GET" action="{{ url_for('lihat_poin_siswa') }}" class="search-row">
+    <div class="field">
+      <label for="q">Cari ID atau Nama Siswa</label>
+      <input type="text" id="q" name="q" value="{{ kata_kunci }}" placeholder="Kosongkan untuk lihat semua siswa">
+    </div>
+    <button type="submit" class="btn ghost">Cari</button>
+  </form>
+</div>
+
+{% if not hasil %}
+  <div class="empty-state">
+    <div class="empty-title">Belum ada data siswa</div>
+    <div>Coba kata kunci lain, atau <a href="{{ url_for('daftar_siswa_baru') }}"><strong>daftarkan siswa baru</strong></a>.</div>
+  </div>
+{% else %}
+  <div class="card">
+    <table class="ledger">
+      <thead><tr><th>ID</th><th>Nama</th><th>Kelas</th><th class="num">Total Poin</th></tr></thead>
+      <tbody>
+      {% for s in hasil %}
+        <tr>
+          <td>{{ s['id'] }}</td>
+          <td>{{ s['nama'] }}</td>
+          <td>{{ s['kelas'] }}</td>
+          <td class="num points">{{ s['total_poin'] }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endif %}
+{% endblock %}

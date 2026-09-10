@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Struk Penukaran{% endblock %}
+{% block content %}
+<div class="page-eyebrow">Penukaran Berhasil</div>
+<h1 class="page-title">Selamat, {{ struk.nama }}! 🎁</h1>
+<p class="page-desc">Poin berhasil ditukarkan dengan hadiah pilihan.</p>
+
+<div class="receipt-wrap">
+  <div class="receipt">
+    <div class="r-mark">🎁</div>
+    <div class="r-title">Bukti Penukaran Hadiah</div>
+    <div class="r-sub">Bank Sampah Sekolah</div>
+
+    <div class="r-row"><span class="lbl">Nama</span><span>{{ struk.nama }}</span></div>
+    <div class="r-row"><span class="lbl">Kelas</span><span>{{ struk.kelas }}</span></div>
+    <div class="r-row"><span class="lbl">Tanggal</span><span>{{ struk.tanggal }}</span></div>
+    <hr>
+    <div class="r-row"><span class="lbl">Hadiah</span><span>{{ struk.nama_hadiah }}</span></div>
+    <div class="r-row"><span class="lbl">Poin Dipakai</span><span>-{{ struk.poin_dibutuhkan }}</span></div>
+    <hr>
+    <div class="r-total"><span>Sisa Poin</span><span class="amount">{{ struk.sisa_poin }}</span></div>
+
+    <div class="r-footer">*** Terima kasih sudah menabung sampah ***</div>
+  </div>
+</div>
+
+<div class="actions-row" style="justify-content:center;">
+  <a href="{{ url_for('tukar_hadiah') }}" class="btn ghost">Tukar Lagi</a>
+  <a href="{{ url_for('index') }}" class="btn">Kembali ke Dashboard</a>
+</div>
+{% endblock %}

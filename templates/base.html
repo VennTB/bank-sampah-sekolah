@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Bank Sampah Sekolah{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=3">
+</head>
+<body>
+<div class="mobile-topbar">
+  <div class="mobile-brand">
+    <div class="brand-mark" style="width:28px;height:28px;font-size:14px;">♻</div>
+    <span>Bank Sampah Sekolah</span>
+  </div>
+  <button type="button" class="hamburger-btn" id="hamburgerBtn" aria-label="Buka menu" aria-expanded="false" aria-controls="sidebar">
+    <span></span><span></span><span></span>
+  </button>
+</div>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app-shell">
+
+  <aside class="sidebar" id="sidebar">
+    <button type="button" class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Tutup menu">✕</button>
+    <div class="brand">
+      <div class="brand-mark eco-spin-hover">♻</div>
+      <div class="brand-text">Bank Sampah<br>Sekolah</div>
+    </div>
+    <div class="brand-sub">Buku Tabungan Digital</div>
+
+    <nav>
+      <div class="nav-eyebrow">Siswa</div>
+      <a class="nav-link {{ 'active' if active=='daftar' }}" href="{{ url_for('daftar_siswa_baru') }}"><span class="num">1</span> Daftar Siswa Baru</a>
+      <a class="nav-link {{ 'active' if active=='poin' }}" href="{{ url_for('lihat_poin_siswa') }}"><span class="num">3</span> Lihat Poin Siswa</a>
+      <a class="nav-link {{ 'active' if active=='hapus' }}" href="{{ url_for('hapus_siswa') }}"><span class="num">8</span> Hapus Data Siswa</a>
+
+      <div class="nav-eyebrow">Transaksi</div>
+      <a class="nav-link {{ 'active' if active=='setor' }}" href="{{ url_for('setor_sampah') }}"><span class="num">2</span> Setor Sampah</a>
+      <a class="nav-link {{ 'active' if active=='riwayat' }}" href="{{ url_for('riwayat_setoran') }}"><span class="num">4</span> Riwayat Setoran</a>
+      <a class="nav-link {{ 'active' if active=='hadiah' }}" href="{{ url_for('lihat_hadiah') }}"><span class="num">5</span> Daftar Hadiah</a>
+      <a class="nav-link {{ 'active' if active=='tukar' }}" href="{{ url_for('tukar_hadiah') }}"><span class="num">6</span> Tukar Poin</a>
+
+      <div class="nav-eyebrow">Ringkasan</div>
+      <a class="nav-link {{ 'active' if active=='laporan' }}" href="{{ url_for('laporan_total') }}"><span class="num">7</span> Laporan Rekap</a>
+    </nav>
+
+    <div class="perforation">
+      Terima kasih sudah<br>menjaga lingkungan sekolah 🌱
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="flash-stack">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash {{ category }}" data-flash>
+            <span class="flash-icon">{{ '✅' if category == 'success' else '⚠️' }}</span>
+            <span>{{ message }}</span>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    </div>
+
+    {% block content %}{% endblock %}
+  </main>
+
+</div>
+<script src="{{ url_for('static', filename='site.js') }}?v=3"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Setor Sampah{% endblock %}
+{% block content %}
+<div class="page-eyebrow">Menu 02</div>
+<h1 class="page-title">Setor Sampah</h1>
+<p class="page-desc">Cari siswa terlebih dahulu, lalu catat jenis dan berat sampah yang disetor.</p>
+
+<div class="card">
+  <form method="GET" action="{{ url_for('setor_sampah') }}" class="search-row">
+    <div class="field">
+      <label for="q">Cari ID atau Nama Siswa</label>
+      <input type="text" id="q" name="q" value="{{ kata_kunci }}" placeholder="cth.Sapto atau 2" autofocus>
+    </div>
+    <button type="submit" class="btn ghost">Cari</button>
+  </form>
+</div>
+
+{% if kata_kunci %}
+  {% if not hasil %}
+    <div class="empty-state">
+      <div class="empty-title">Siswa tidak ditemukan</div>
+      <div>Belum terdaftar? <a href="{{ url_for('daftar_siswa_baru') }}"><strong>Daftarkan dulu</strong></a>.</div>
+    </div>
+  {% elif hasil|length > 1 %}
+    <div class="card">
+      <p class="small-muted" style="margin-top:0;">Ditemukan {{ hasil|length }} siswa, pilih salah satu:</p>
+      <table class="ledger">
+        <thead><tr><th>ID</th><th>Nama</th><th>Kelas</th><th class="num">Poin</th><th></th></tr></thead>
+        <tbody>
+        {% for s in hasil %}
+          <tr>
+            <td>{{ s['id'] }}</td><td>{{ s['nama'] }}</td><td>{{ s['kelas'] }}</td>
+            <td class="num points">{{ s['total_poin'] }}</td>
+            <td><a class="btn ghost" href="{{ url_for('setor_sampah', q=s['id']) }}">Pilih</a></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    {% set s = hasil[0] %}
+    <div class="passbook">
+      <div>
+        <div class="pb-id">ID #{{ s['id'] }}</div>
+        <div class="pb-name">{{ s['nama'] }}</div>
+        <div class="pb-class">Kelas {{ s['kelas'] }}</div>
+      </div>
+      <div class="pb-points">
+        <div class="val">{{ s['total_poin'] }}</div>
+        <div class="lbl">Poin Saat Ini</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <form method="POST" action="{{ url_for('setor_sampah_proses') }}">
+        <input type="hidden" name="siswa_id" value="{{ s['id'] }}">
+        <div class="field">
+          <label for="jenis">Jenis Sampah</label>
+          <select id="jenis" name="jenis" required>
+            <option value="" disabled selected>Pilih jenis sampah</option>
+            {% for kode, info in harga_sampah.items() %}
+              <option value="{{ kode }}">{{ info[0] }} — {{ info[1] }} poin/kg</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label for="berat">Berat Sampah (kg)</label>
+          <input type="number" id="berat" name="berat" min="0.01" step="0.01" placeholder="cth. 2.5" required>
+        </div>
+        <button type="submit" class="btn amber">Catat Setoran</button>
+      </form>
+    </div>
+  {% endif %}
+{% endif %}
+{% endblock %}

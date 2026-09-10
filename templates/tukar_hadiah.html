@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Tukar Poin dengan Hadiah{% endblock %}
+{% block content %}
+<div class="page-eyebrow">Menu 06</div>
+<h1 class="page-title">Tukar Poin dengan Hadiah</h1>
+<p class="page-desc">Cari siswa, lalu pilih hadiah yang ingin ditukar dengan poin mereka.</p>
+
+<div class="card">
+  <form method="GET" action="{{ url_for('tukar_hadiah') }}" class="search-row">
+    <div class="field">
+      <label for="q">Cari ID atau Nama Siswa</label>
+      <input type="text" id="q" name="q" value="{{ kata_kunci }}" placeholder="cth. Sapto atau 2" autofocus>
+    </div>
+    <button type="submit" class="btn ghost">Cari</button>
+  </form>
+</div>
+
+{% if kata_kunci and not siswa %}
+  {% if not hasil %}
+    <div class="empty-state">
+      <div class="empty-title">Siswa tidak ditemukan</div>
+    </div>
+  {% elif hasil|length > 1 %}
+    <div class="card">
+      <p class="small-muted" style="margin-top:0;">Ditemukan {{ hasil|length }} siswa, pilih salah satu:</p>
+      <table class="ledger">
+        <thead><tr><th>ID</th><th>Nama</th><th>Kelas</th><th class="num">Poin</th><th></th></tr></thead>
+        <tbody>
+        {% for s in hasil %}
+          <tr>
+            <td>{{ s['id'] }}</td><td>{{ s['nama'] }}</td><td>{{ s['kelas'] }}</td>
+            <td class="num points">{{ s['total_poin'] }}</td>
+            <td><a class="btn ghost" href="{{ url_for('tukar_hadiah', q=s['nama'], siswa_id=s['id']) }}">Pilih</a></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    {% set s = hasil[0] %}
+    <div class="empty-state">
+      <div class="empty-title">Ditemukan 1 siswa</div>
+      <a class="btn" href="{{ url_for('tukar_hadiah', q=s['nama'], siswa_id=s['id']) }}">Lanjutkan dengan {{ s['nama'] }}</a>
+    </div>
+  {% endif %}
+{% endif %}
+
+{% if siswa %}
+  <div class="passbook">
+    <div>
+      <div class="pb-id">ID #{{ siswa['id'] }}</div>
+      <div class="pb-name">{{ siswa['nama'] }}</div>
+      <div class="pb-class">Kelas {{ siswa['kelas'] }}</div>
+    </div>
+    <div class="pb-points">
+      <div class="val">{{ siswa['total_poin'] }}</div>
+      <div class="lbl">Poin Saat Ini</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="small-muted" style="margin-top:0;">Pilih hadiah untuk ditukar:</p>
+    <form method="POST" action="{{ url_for('tukar_hadiah_proses') }}">
+      <input type="hidden" name="siswa_id" value="{{ siswa['id'] }}">
+      <div class="field">
+        <label for="hadiah_id">Hadiah</label>
+        <select id="hadiah_id" name="hadiah_id" required>
+          <option value="" disabled selected>Pilih hadiah</option>
+          {% for h in daftar_hadiah %}
+            <option value="{{ h['id'] }}" {% if h['stok'] <= 0 or siswa['total_poin'] < h['poin_dibutuhkan'] %}disabled{% endif %}>
+              {{ h['nama_hadiah'] }} — {{ h['poin_dibutuhkan'] }} poin
+              {% if h['stok'] <= 0 %}(stok habis){% elif siswa['total_poin'] < h['poin_dibutuhkan'] %}(poin kurang){% endif %}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn amber">Tukar Sekarang</button>
+    </form>
+  </div>
+{% endif %}
+{% endblock %}

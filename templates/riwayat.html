@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Riwayat Setoran{% endblock %}
+{% block content %}
+<div class="page-eyebrow">Menu 04</div>
+<h1 class="page-title">Riwayat Setoran</h1>
+<p class="page-desc">Lihat histori setoran sampah seluruh siswa, atau filter berdasarkan satu siswa.</p>
+
+<div class="card">
+  <form method="GET" action="{{ url_for('riwayat_setoran') }}" class="search-row">
+    <div class="field">
+      <label for="q">ID atau Nama Siswa</label>
+      <input type="text" id="q" name="q" value="{{ kata_kunci }}" placeholder="Kosongkan untuk lihat semua riwayat">
+    </div>
+    <button type="submit" class="btn ghost">Tampilkan</button>
+  </form>
+</div>
+
+{% if not data %}
+  <div class="empty-state">
+    <div class="empty-title">Belum ada riwayat setoran</div>
+    <div>Riwayat akan muncul di sini setelah ada siswa yang menyetor sampah.</div>
+  </div>
+{% else %}
+  <div class="card">
+    <table class="ledger">
+      <thead><tr><th>Tanggal</th><th>Nama</th><th>Jenis</th><th class="num">Berat (kg)</th><th class="num">Poin</th></tr></thead>
+      <tbody>
+      {% for row in data %}
+        <tr>
+          <td>{{ row['tanggal'] }}</td>
+          <td>{{ row['nama'] }}</td>
+          <td>{{ row['jenis_sampah'] }}</td>
+          <td class="num">{{ "%.2f"|format(row['berat_kg']) }}</td>
+          <td class="num points">+{{ row['poin_didapat'] }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endif %}
+{% endblock %}
