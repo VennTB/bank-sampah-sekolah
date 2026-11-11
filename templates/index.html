@@ -1,197 +1,159 @@
-{% extends "base.html" %}
-{% block title %}Dashboard — Bank Sampah Sekolah{% endblock %}
-{% block content %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bank Sampah Sekolah</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v={{ v('style.css') }}">
+<style>.view{display:none}.view.on{display:block}</style>
+</head>
+<body>
+<div class="shell">
 
-{% set milestone = 500 %}
-{% set pohon = (ringkasan.total_poin // milestone) %}
-{% set sisa_poin = ringkasan.total_poin % milestone %}
-{% set progress_percent = (sisa_poin / milestone * 100) if milestone else 0 %}
-{% set kurang_poin = milestone - sisa_poin %}
+  <aside class="side" id="side">
+    <div class="logo"><span class="logo-leaf">♻</span><b>Bank Sampah<br>Sekolah</b></div>
+    <nav id="nav">
+      <button data-go="dash" class="on">🏡 Beranda</button>
+      <button data-go="siswa">🧑‍🎓 Siswa</button>
+      <button data-go="setor">♻️ Setor Sampah</button>
+      <button data-go="hadiah">🎁 Hadiah</button>
+      <button data-go="tukar">🔄 Tukar Poin</button>
+      <button data-go="laporan">📊 Laporan</button>
+    </nav>
+    <p class="side-note">Setiap 500 poin yang terkumpul menumbuhkan satu pohon virtual 🌱</p>
+  </aside>
 
-<!-- ========== HERO ========== -->
-<section class="eco-hero" aria-labelledby="dashboard-title">
-  <div class="eco-float-icons" aria-hidden="true"></div>
+  <main class="main">
 
-  <div class="eco-hero-top">
-    <div class="eco-hero-text">
-      <p class="page-eyebrow">Halaman Utama</p>
-      <h1 id="dashboard-title" class="page-title">
-        Selamat datang di Bank Sampah Sekolah 👋
-      </h1>
-      <p class="page-desc">
-        Kelola setoran sampah siswa, poin, dan penukaran hadiah — semua dari browser, tanpa terminal.
-      </p>
-    </div>
+    <!-- BERANDA -->
+    <section class="view on" id="v-dash">
+      <div class="hero">
+        <div class="hero-sky" aria-hidden="true"></div>
+        <div class="hero-text">
+          <h1>Sampah hari ini,<br>pohon untuk besok.</h1>
+          <p>Catat setoran, kumpulkan poin, tukar dengan hadiah, dan lihat kebun sekolah tumbuh.</p>
+          <div class="hero-actions">
+            <button class="btn amber" data-act="setor">♻️ Setor sampah</button>
+            <button class="btn light" data-act="siswa-baru">＋ Daftarkan siswa</button>
+          </div>
+        </div>
+        <button class="garden" id="garden" aria-label="Pohon virtual sekolah. Klik untuk mengguncang pohon">
+          <svg viewBox="0 0 240 240" id="treeSvg">
+            <ellipse cx="120" cy="222" rx="86" ry="12" fill="#0b2a1c" opacity=".35"/>
+            <g id="trunkG"><path d="M110 222 C112 180 108 150 114 118 L126 118 C132 150 128 180 130 222Z" fill="#7a5233"/></g>
+            <g id="canopy">
+              <circle cx="120" cy="96" r="58" fill="#2e8b57"/>
+              <circle cx="82" cy="112" r="38" fill="#3aa566"/>
+              <circle cx="160" cy="110" r="40" fill="#35995f"/>
+              <circle cx="120" cy="70" r="36" fill="#4bbd7a"/>
+              <circle cx="100" cy="88" r="7" fill="#e8a33d" class="fruit"/>
+              <circle cx="146" cy="100" r="7" fill="#e8a33d" class="fruit"/>
+              <circle cx="124" cy="62" r="6" fill="#e8a33d" class="fruit"/>
+            </g>
+          </svg>
+          <span class="garden-count"><b id="pohonN">0</b> pohon</span>
+          <div class="bubble" id="bubble" role="status"></div>
+        </button>
+      </div>
 
-    <div class="eco-mascot-wrap">
-      <div class="eco-bubble" role="status" aria-live="polite" aria-atomic="true"></div>
-      <button
-        type="button"
-        class="eco-mascot-btn"
-        aria-label="Klik maskot untuk fakta seru tentang daur ulang"
-        title="Klik aku untuk fakta menarik!"
-      >
-        🗑️♻️
-      </button>
-      <p class="eco-mascot-hint">Klik aku!</p>
-    </div>
-  </div>
-</section>
+      <div class="stats">
+        <div class="stat"><span>🧑‍🎓</span><em>Siswa terdaftar</em><b data-count="jumlah_siswa">0</b></div>
+        <div class="stat"><span>⚖️</span><em>Sampah terkumpul (kg)</em><b data-count="total_berat" data-dec="1">0</b></div>
+        <div class="stat"><span>⭐</span><em>Poin beredar</em><b data-count="poin_beredar">0</b></div>
+        <div class="stat"><span>🎁</span><em>Hadiah tertukar</em><b data-count="jumlah_penukaran">0</b></div>
+      </div>
 
-<!-- ========== STATISTIK ========== -->
-<section class="stat-row" aria-label="Ringkasan statistik">
-  <article class="stat-card eco-in">
-    <div class="stat-icon" aria-hidden="true">👥</div>
-    <div class="stat-label">Siswa Terdaftar</div>
-    <div class="stat-value">
-      <span
-        class="eco-counter"
-        data-target="{{ ringkasan.jumlah_siswa }}"
-        data-decimals="0"
-        data-duration="1100"
-      >0</span>
-      <span class="unit">siswa</span>
-    </div>
-  </article>
+      <div class="grid2">
+        <div class="card">
+          <h2>Menuju pohon berikutnya</h2>
+          <div class="track"><div class="fill" id="fill"></div></div>
+          <p class="muted" id="fillNote"></p>
+          <h2 style="margin-top:22px">Mau ngapain hari ini?</h2>
+          <div class="quick">
+            <button data-act="setor"><i>♻️</i>Setor sampah</button>
+            <button data-act="tukar"><i>🔄</i>Tukar poin</button>
+            <button data-act="siswa-baru"><i>🧑‍🎓</i>Siswa baru</button>
+            <button data-act="hadiah-baru"><i>🎁</i>Hadiah baru</button>
+            <button data-go="laporan"><i>📊</i>Lihat laporan</button>
+            <button data-go="siswa"><i>📋</i>Kelola siswa</button>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Aktivitas terbaru</h2>
+          <ul class="feed" id="feed"></ul>
+        </div>
+      </div>
+    </section>
 
-  <article class="stat-card eco-in">
-    <div class="stat-icon" aria-hidden="true">⚖️</div>
-    <div class="stat-label">Sampah Terkumpul</div>
-    <div class="stat-value">
-      <span
-        class="eco-counter"
-        data-target="{{ ringkasan.total_berat }}"
-        data-decimals="2"
-        data-duration="1300"
-      >0</span>
-      <span class="unit">kg</span>
-    </div>
-  </article>
+    <!-- SISWA -->
+    <section class="view" id="v-siswa" hidden>
+      <header class="vhead">
+        <div><h1>Siswa</h1><p class="muted">Tambah, ubah, dan hapus data siswa. Poin dihitung otomatis dari setoran.</p></div>
+        <div class="row"><button class="btn danger" id="bulkDel" hidden>Hapus terpilih (<span>0</span>)</button>
+        <button class="btn" data-act="siswa-baru">＋ Siswa baru</button></div>
+      </header>
+      <input class="search" id="qSiswa" placeholder="Cari nama, kelas, atau ID siswa…" type="search">
+      <div class="card tbl-wrap"><table class="tbl" id="tSiswa"></table></div>
+    </section>
 
-  <article class="stat-card eco-in">
-    <div class="stat-icon" aria-hidden="true">⭐</div>
-    <div class="stat-label">Poin Beredar</div>
-    <div class="stat-value">
-      <span
-        class="eco-counter"
-        data-target="{{ ringkasan.total_poin }}"
-        data-decimals="0"
-        data-duration="1400"
-      >0</span>
-      <span class="unit">poin</span>
-    </div>
-  </article>
-</section>
+    <!-- SETOR -->
+    <section class="view" id="v-setor" hidden>
+      <header class="vhead">
+        <div><h1>Setor sampah</h1><p class="muted">Catat setoran baru, lalu koreksi atau hapus lewat riwayat di bawah.</p></div>
+      </header>
+      <form class="card form-inline" id="fSetor">
+        <label>Siswa<select name="siswa_id" id="selSiswa" required></select></label>
+        <label>Jenis sampah<select name="jenis" id="selJenis" required></select></label>
+        <label>Berat (kg)<input name="berat" id="inBerat" type="number" step="0.01" min="0.01" placeholder="2.5" required></label>
+        <div class="estimasi"><em>Perkiraan poin</em><b id="estPoin">0</b></div>
+        <button class="btn amber">Catat setoran</button>
+      </form>
+      <h2 class="sub">Riwayat setoran</h2>
+      <input class="search" id="qSetor" placeholder="Filter berdasarkan nama, kelas, atau ID siswa…" type="search">
+      <div class="card tbl-wrap"><table class="tbl" id="tSetor"></table></div>
+    </section>
 
-<!-- ========== PROGRES POHON VIRTUAL ========== -->
-<section class="card eco-progress-card" aria-labelledby="progress-title">
-  <div class="eco-progress-head">
-    <h2 id="progress-title" class="eco-progress-title">
-      🌳 Progres Pohon Virtual Sekolah
-    </h2>
-    <div class="eco-progress-count">
-      <strong>{{ pohon }}</strong> pohon tertanam
-    </div>
-  </div>
+    <!-- HADIAH -->
+    <section class="view" id="v-hadiah" hidden>
+      <header class="vhead">
+        <div><h1>Hadiah</h1><p class="muted">Atur hadiah yang bisa ditukar siswa.</p></div>
+        <button class="btn" data-act="hadiah-baru">＋ Hadiah baru</button>
+      </header>
+      <div class="gifts" id="gifts"></div>
+    </section>
 
-  <div class="eco-tree-row">
-    <div class="eco-tree-emoji" aria-hidden="true">🌳</div>
-    <div
-      class="eco-progress-track"
-      role="progressbar"
-      aria-valuenow="{{ progress_percent | round(0) }}"
-      aria-valuemin="0"
-      aria-valuemax="100"
-      aria-label="Progres menuju pohon berikutnya"
-    >
-      <div
-        class="eco-progress-fill"
-        data-target-percent="{{ '%.1f'|format(progress_percent) }}"
-      ></div>
-    </div>
-  </div>
+    <!-- TUKAR -->
+    <section class="view" id="v-tukar" hidden>
+      <header class="vhead">
+        <div><h1>Tukar poin</h1><p class="muted">Pilih siswa, lalu pilih hadiah yang poinnya cukup.</p></div>
+      </header>
+      <div class="card form-inline"><label style="flex:1">Siswa<select id="tukarSiswa"></select></label></div>
+      <div id="tukarBody"></div>
+      <h2 class="sub">Riwayat penukaran</h2>
+      <div class="card tbl-wrap"><table class="tbl" id="tTukar"></table></div>
+    </section>
 
-  <p class="eco-progress-note">
-    {% if kurang_poin > 0 %}
-      Kumpulkan <strong>{{ kurang_poin }} poin</strong> lagi dari seluruh siswa
-      untuk menumbuhkan pohon virtual berikutnya!
-      Setiap <strong>{{ milestone }} poin</strong> = 1 pohon. 🌱
-    {% else %}
-      Selamat! Target pohon berikutnya sudah tercapai. 🎉
-      Terus kumpulkan poin untuk pohon berikutnya.
-    {% endif %}
-  </p>
-</section>
+    <!-- LAPORAN -->
+    <section class="view" id="v-laporan" hidden>
+      <header class="vhead">
+        <div><h1>Laporan rekap</h1><p class="muted">Gambaran seluruh program bank sampah.</p></div>
+        <button class="btn light dark" onclick="window.print()">🖨 Cetak</button>
+      </header>
+      <div class="grid2">
+        <div class="card"><h2>Berat per jenis sampah</h2><div id="barJenis"></div></div>
+        <div class="card"><h2>Peringkat poin siswa</h2><ol class="rank" id="rank"></ol></div>
+      </div>
+      <div class="card"><h2>Sampah per kelas</h2><div id="barKelas"></div></div>
+    </section>
 
-<!-- ========== MENU UTAMA ========== -->
-<nav class="menu-grid" aria-label="Menu utama Bank Sampah">
-  <a class="menu-card eco-in" href="{{ url_for('daftar_siswa_baru') }}">
-    <div class="menu-icon" aria-hidden="true">📝</div>
-    <div class="menu-num">01</div>
-    <div class="menu-title">Daftar Siswa Baru</div>
-    <div class="menu-desc">Tambahkan siswa baru ke buku tabungan sampah.</div>
-    <span class="menu-arrow" aria-hidden="true">→</span>
-  </a>
+  </main>
+</div>
 
-  <a class="menu-card eco-in" href="{{ url_for('setor_sampah') }}">
-    <div class="menu-icon" aria-hidden="true">♻️</div>
-    <div class="menu-num">02</div>
-    <div class="menu-title">Setor Sampah</div>
-    <div class="menu-desc">Catat setoran & dapatkan poin sesuai berat & jenis sampah.</div>
-    <span class="menu-arrow" aria-hidden="true">→</span>
-  </a>
-
-  <a class="menu-card eco-in" href="{{ url_for('lihat_poin_siswa') }}">
-    <div class="menu-icon" aria-hidden="true">⭐</div>
-    <div class="menu-num">03</div>
-    <div class="menu-title">Lihat Poin Siswa</div>
-    <div class="menu-desc">Cek total poin yang dimiliki setiap siswa.</div>
-    <span class="menu-arrow" aria-hidden="true">→</span>
-  </a>
-
-  <a class="menu-card eco-in" href="{{ url_for('riwayat_setoran') }}">
-    <div class="menu-icon" aria-hidden="true">📜</div>
-    <div class="menu-num">04</div>
-    <div class="menu-title">Riwayat Setoran</div>
-    <div class="menu-desc">Lihat seluruh histori setoran sampah.</div>
-    <span class="menu-arrow" aria-hidden="true">→</span>
-  </a>
-
-  <a class="menu-card eco-in" href="{{ url_for('lihat_hadiah') }}">
-    <div class="menu-icon" aria-hidden="true">🎁</div>
-    <div class="menu-num">05</div>
-    <div class="menu-title">Daftar Hadiah</div>
-    <div class="menu-desc">Lihat hadiah yang tersedia untuk ditukar.</div>
-    <span class="menu-arrow" aria-hidden="true">→</span>
-  </a>
-
-  <a class="menu-card eco-in" href="{{ url_for('tukar_hadiah') }}">
-    <div class="menu-icon" aria-hidden="true">🔄</div>
-    <div class="menu-num">06</div>
-    <div class="menu-title">Tukar Poin dengan Hadiah</div>
-    <div class="menu-desc">Tukarkan poin siswa dengan hadiah pilihan.</div>
-    <span class="menu-arrow" aria-hidden="true">→</span>
-  </a>
-
-  <a class="menu-card eco-in" href="{{ url_for('laporan_total') }}">
-    <div class="menu-icon" aria-hidden="true">📊</div>
-    <div class="menu-num">07</div>
-    <div class="menu-title">Laporan Rekap</div>
-    <div class="menu-desc">Ringkasan total, rincian jenis sampah & peringkat siswa.</div>
-    <span class="menu-arrow" aria-hidden="true">→</span>
-  </a>
-
-  <a class="menu-card eco-in" href="{{ url_for('hapus_siswa') }}">
-    <div class="menu-icon" aria-hidden="true">🗑️</div>
-    <div class="menu-num">08</div>
-    <div class="menu-title">Hapus Data Siswa</div>
-    <div class="menu-desc">Hapus data siswa beserta riwayatnya.</div>
-    <span class="menu-arrow" aria-hidden="true">→</span>
-  </a>
-</nav>
-
-{% endblock %}
-
-{% block scripts %}
-<script src="{{ url_for('static', filename='dashboard.js') }}"></script>
-{% endblock %}
+<button class="menu-fab" id="menuFab" aria-label="Buka menu">☰</button>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<script src="{{ url_for('static', filename='app.js') }}?v={{ v('app.js') }}"></script>
+</body>
+</html>
